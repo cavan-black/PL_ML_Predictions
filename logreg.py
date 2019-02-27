@@ -4,14 +4,8 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def load_data(path, header):
-    df = pd.read_csv(path, header=header)
-    return df
-
-
 if __name__ == "__main__":
-    df = load_data('C:/Users/cavan/Documents/Diss/wpl.csv', 0)
-
+    df = pd.read_csv('C:/Users/cavan/Documents/Diss/wpl.csv', 0) #change path if necessary
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
     x_train, x_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
