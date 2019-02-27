@@ -9,11 +9,10 @@ import requests
 le = LabelEncoder()
 gamesConsidered = 6
 testTot = (gamesConsidered - 1) * 20
-csv_out = 'wpl.csv'
 
 
 def merge_csv():
-    os.chdir(r"C:\Users\cavan\Downloads\PLRESULTS")
+    os.chdir(r"C:\Users\cavan\Downloads\PLRESULTS") #change path if necessary
     filelist = glob.glob("*.csv")
     dflist = []
     for filename in filelist:
@@ -21,7 +20,7 @@ def merge_csv():
         df = pd.read_csv(filename, header=None, engine='python')
         dflist.append(df)
     concatdf = pd.concat(dflist, axis=0)
-    concatdf.to_csv('C:/Users/cavan/Documents/Diss/PLRES.csv')
+    concatdf.to_csv('C:/Users/cavan/Documents/Diss/PLRES.csv') #change path if necessary
 
 
 def homeAttForm(data):
@@ -69,9 +68,8 @@ def do_dummies(data):
 
 
 if __name__ == "__main__":
-    # load the data from the file
-    merge_csv()
-    df = pd.read_csv('C:/Users/cavan/Documents/Diss/PLRES.csv', header=0)
+    #merge_csv() #only call if you have all separate .csv files
+    df = pd.read_csv('C:/Users/cavan/Documents/Diss/PLRES.csv', header=0) #change path if necessary
     df = df.iloc[:, 1:8].reset_index(drop=True).dropna()
     df.columns = ['Div', 'Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR']
     df = df.drop(['Div', 'FTR'], axis =1)
@@ -94,7 +92,7 @@ if __name__ == "__main__":
     cols = list(df.columns.values)
     cols.pop(cols.index('result'))
     df = df[cols + ['result']]
-    df.to_csv(r'C:\Users\cavan\Documents\Diss\wpl.csv')
+    df.to_csv(r'C:\Users\cavan\Documents\Diss\wpl.csv') #change path if necessary
 
 
 
