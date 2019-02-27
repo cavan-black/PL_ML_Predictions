@@ -2,17 +2,13 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 import glob
 import os
-import http.client
-import json
-import requests
 
 le = LabelEncoder()
-gamesConsidered = 6
-testTot = (gamesConsidered - 1) * 20
+gamesConsidered = 6 #To Be Optimised!
 
 
 def merge_csv():
-    os.chdir(r"C:\Users\cavan\Downloads\PLRESULTS") #change path if necessary
+    os.chdir(r"C:\Users\cavan\Downloads\PLRESULTS") #Change File Path if Necessary
     filelist = glob.glob("*.csv")
     dflist = []
     for filename in filelist:
@@ -20,7 +16,7 @@ def merge_csv():
         df = pd.read_csv(filename, header=None, engine='python')
         dflist.append(df)
     concatdf = pd.concat(dflist, axis=0)
-    concatdf.to_csv('C:/Users/cavan/Documents/Diss/PLRES.csv') #change path if necessary
+    concatdf.to_csv('C:/Users/cavan/Documents/Diss/PLRES.csv') #Change File Path if Necessary
 
 
 def homeAttForm(data):
@@ -68,11 +64,12 @@ def do_dummies(data):
 
 
 if __name__ == "__main__":
-    #merge_csv() #only call if you have all separate .csv files
-    df = pd.read_csv('C:/Users/cavan/Documents/Diss/PLRES.csv', header=0) #change path if necessary
+   #merge_csv() #Only call if you want to merge all separate .csv files
+    df = pd.read_csv('C:/Users/cavan/Documents/Diss/PLRES.csv', header=0) #Change File Path if Necessary
     df = df.iloc[:, 1:8].reset_index(drop=True).dropna()
     df.columns = ['Div', 'Date', 'HomeTeam', 'AwayTeam', 'FTHG', 'FTAG', 'FTR']
     df = df.drop(['Div', 'FTR'], axis =1)
+    df['Date'] = pd.to_datetime(df.Date, dayfirst = True)
     df = df.sort_values(['AwayTeam', 'Date'], ascending=[True, False]).reset_index(drop=True)
     for i, (index, row) in enumerate(df.iterrows()):
         if df.at[index, 'FTHG'] > df.at[index, 'FTAG']:
@@ -92,7 +89,7 @@ if __name__ == "__main__":
     cols = list(df.columns.values)
     cols.pop(cols.index('result'))
     df = df[cols + ['result']]
-    df.to_csv(r'C:\Users\cavan\Documents\Diss\wpl.csv') #change path if necessary
+    df.to_csv('C:/Users/cavan/Documents/Diss/wpl.csv') #Change File Path if Necessary
 
 
 
