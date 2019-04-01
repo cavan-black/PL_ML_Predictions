@@ -46,7 +46,7 @@ def naive_bayes(X_train, X_test, y_train, y_test):
     check_acc(y_test, nbpred)
 
 
-def split_data(df)
+def split_data(df):
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
