@@ -4,7 +4,7 @@ import glob
 import os
 
 le = LabelEncoder()
-gamesConsidered = 5  # To Be Optimised!
+gamesConsidered = 3  # To Be Optimised!
 currentTeams = ['Arsenal', 'Bournemouth', 'Brighton', 'Burnley', 'Cardiff', 'Chelsea', 'Crystal Palace', 'Everton',
                 'Fulham', 'Huddersfield', 'Leicester', 'Liverpool', 'Man City', 'Man United', 'Newcastle', 'Southampton'
                 , 'Tottenham', 'Watford', 'West Ham', 'Wolves']
@@ -212,7 +212,6 @@ def refine_columns(data):
 def remove_teams(data):
     data = data.loc[data['HomeTeam'].isin(currentTeams)]
     data = data.loc[data['AwayTeam'].isin(currentTeams)]
-    data.to_csv('C:/Users/cavan/OneDrive/Documents/PL_ML_Predictions/wsxspl.csv')
     return data
 
 

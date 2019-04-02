@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
@@ -8,12 +7,12 @@ import seaborn as sns
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.naive_bayes import BernoulliNB
-from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold
+from sklearn.model_selection import train_test_split, cross_val_score, StratifiedKFold, TimeSeriesSplit
 
 rfc = RandomForestClassifier(n_estimators=1000)
 nb = BernoulliNB()
 log_reg = LogisticRegression(solver='liblinear', multi_class='auto')
-skf = StratifiedKFold(n_splits=15, shuffle=True, random_state=42)
+tscv = TimeSeriesSplit(n_splits=10)
 
 
 def plot_conf_matrix(conf_matrix):
@@ -25,7 +24,7 @@ def plot_conf_matrix(conf_matrix):
 
 
 def cross_validation_split(X, y):
-    for train_index, test_index in skf.split(X, y):
+    for train_index, test_index in tscv.split(X):
         X_train, X_test = X[train_index], X[test_index]
         y_train, y_test = y[train_index], y[test_index]
     return X_train, X_test, y_train, y_test
@@ -33,7 +32,7 @@ def cross_validation_split(X, y):
 
 def cross_validation_acc(X, y, est):
     X_train, X_test, y_train, y_test = cross_validation_split(X, y)
-    scores = cross_val_score(est, X_train, y_train, cv=skf)
+    scores = cross_val_score(est, X_train, y_train, cv=tscv)
     mean_score = sum(scores) / float(len(scores))
     print("Cross Validation Score:", mean_score, "\n")
 
@@ -71,7 +70,7 @@ if __name__ == "__main__":
     df = pd.read_csv('C:/Users/cavan/OneDrive/Documents/PL_ML_Predictions/wpl.csv')  # change path if necessary
     X = df.iloc[:, :-1].values
     y = df.iloc[:, -1].values
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=False)
     logistic_regression(X_train, X_test, y_train, y_test)
     cross_validation_acc(X, y, log_reg)
     random_forest_classification(X_train, X_test, y_train, y_test)
