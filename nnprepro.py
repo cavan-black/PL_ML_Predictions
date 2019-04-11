@@ -286,7 +286,7 @@ def refine_columns(data):
 
 
 def merge_csv():
-    os.chdir(r"C:/Users/cavan/Downloads/NNPL")  # Change File Path if Necessary
+    os.chdir(r"C:/Users/stevi/Downloads/NNPL")  # Change File Path if Necessary
     dflist = []
     for file in range(1, 12):
         filename = str(file)+".csv"
@@ -295,7 +295,7 @@ def merge_csv():
         df1['Season'] = file
         dflist.append(df1)
     concatdf = pd.concat(dflist, axis=0, sort=False)
-    concatdf.to_csv('C:/Users/cavan/OneDrive/Documents/PL_ML_Predictions/NNPLR.csv')  # Change File Path if Necessary
+    concatdf.to_csv('C:/Users/stevi/Desktop/Cav_Diss/NNPLR.csv')  # Change File Path if Necessary
 
 
 def remove_teams(data):
@@ -341,14 +341,13 @@ def numres(data):
     return data
 
 if __name__ == "__main__":
-    #merge_csv()  # Only call if you want to merge all separate .csv files
-    #os.chdir('C:/Users/cavan/OneDrive/Documents/PL_ML_Predictions')# Change File Path if Necessary
-    #df = pd.read_csv('NNPLR.csv', header=0).drop(['Unnamed: 0'], axis=1)
-    #df['Date'] = pd.to_datetime(df.Date, dayfirst=True)
-    #df = calc_cols(df)
-    #convert_dict()
+    merge_csv()  # Only call if you want to merge all separate .csv files
+    os.chdir('C:/Users/stevi/Desktop/Cav_Diss')# Change File Path if Necessary
+    df = pd.read_csv('NNPLR.csv', header=0).drop(['Unnamed: 0'], axis=1)
+    df['Date'] = pd.to_datetime(df.Date, dayfirst=True)
+    df = calc_cols(df)
+    convert_dict()
     df = pd.read_csv('skips.csv')
-
     df = pass_on_form2(df).sort_values(['Date'], ascending=True)
     df.to_csv('Checkup.csv')
     df = remove_teams(df)
