@@ -35,19 +35,19 @@ def plot_bar_chart():
 def check_acc(y_test, pred):
     print("The Accuracy using accuracy_score is", accuracy_score(y_test, pred))
     conf_matrix = confusion_matrix(y_test, pred)
-    #plot_conf_matrix(conf_matrix)
+    plot_conf_matrix(conf_matrix)
     print('Classification Report:\n', classification_report(y_test, pred))  # , target_names = seed_names))
 
 
 def logistic_regression():
     log_reg.fit(X_train, y_train)
-    s_log_reg.fit(Xs_train, ys_train)
+    #s_log_reg.fit(Xs_train, ys_train)
     log_pred = log_reg.predict(X_test)
-    s_log_reg_pred = s_log_reg.predict(Xs_test)
+    #s_log_reg_pred = s_log_reg.predict(Xs_test)
     print("Accuracy for Logistic Regression:\n")
     check_acc(y_test, log_pred)
-    print("Accuracy for Scaled Logistic Regression:\n")
-    check_acc(ys_test, s_log_reg_pred)
+    #print("Accuracy for Scaled Logistic Regression:\n")
+    #check_acc(ys_test, s_log_reg_pred)
 
 
 def random_forest_classification():
@@ -67,6 +67,7 @@ def naive_bayes(nb):
 def xg_boost():
     xgb.fit(X_train, y_train)
     xgb_pred = xgb.predict(X_test)
+    print(xgb_pred)
     print("Accuracy for XGBoost:\n")
     check_acc(y_test, xgb_pred)
 
@@ -85,23 +86,26 @@ def visualise_cv_split(data):
 
 if __name__ == "__main__":
     df = pd.read_csv('C:/Users/cavan/OneDrive/Documents/PL_ML_Predictions/wpl.csv')#.drop(['Date'], axis=1)  # change path if necessary
-    X = df.iloc[:, :-1].values
+    df = df.drop(['Date', 'Season'], axis=1)
+    print(df.head)
+    X = df.iloc[:, 2:-1].values
+    print(X)
     y = df.iloc[:, -1].values
-    df[['homeAF', 'homeDF', 'awayAF', 'awayDF', 'LSHAF', 'LSHDF', 'LSAAF', 'LSADF']] = StandardScaler().fit_transform(df[['homeAF', 'homeDF', 'awayAF', 'awayDF', 'LSHAF', 'LSHDF', 'LSAAF', 'LSADF']])
-    X_scaled = df.iloc[:, :-1].values
+    #df[['homeAF', 'homeDF', 'awayAF', 'awayDF']] = StandardScaler().fit_transform(df[['homeAF', 'homeDF', 'awayAF', 'awayDF']])#, 'LSHAF', 'LSHDF', 'LSAAF', 'LSADF']])
+    #X_scaled = df.iloc[:, :-1].values
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1, shuffle=False)
-    Xs_train, Xs_test, ys_train, ys_test = train_test_split(X_scaled, y, test_size=0.1, shuffle=False)
+    #Xs_train, Xs_test, ys_train, ys_test = train_test_split(X_scaled, y, test_size=0.1, shuffle=False)
     logistic_regression()
     random_forest_classification()
-    #naive_bayes(bnb)
-    #naive_bayes(gnb)
-    #naive_bayes(mnb)
-    #naive_bayes(cnb)
+    naive_bayes(bnb)
+    naive_bayes(gnb)
+    naive_bayes(mnb)
+    naive_bayes(cnb)
     xg_boost()
     print("Unscaled Logistic Regression:\n")
     cross_validation_acc(X, log_reg)
-    print("Scaled Logistic Regression:\n")
-    cross_validation_acc(X_scaled, s_log_reg)
+    #print("Scaled Logistic Regression:\n")
+    #cross_validation_acc(X_scaled, s_log_reg)
     print("Random Forest Classification:\n")
     cross_validation_acc(X, rfc)
     print("Naive Bayes:\n")

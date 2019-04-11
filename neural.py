@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import os
 from sklearn.preprocessing import MinMaxScaler
-
+from keras.losses import categorical_crossentropy
 from tensorflow.python.keras.models import Sequential
 from tensorflow.python.keras.layers import Input, Dense, GRU, Embedding
 from tensorflow.python.keras.optimizers import Adam
@@ -12,23 +12,22 @@ from tensorflow.python.keras.callbacks import EarlyStopping, ModelCheckpoint, Te
 
 shift_size = 10
 scaler = MinMaxScaler()
-batch_size = 64
-sequence_length = 200
-warmup_steps = 50
+batch_size = 10
+sequence_length = 380
+warmup_steps = 200
 optimizer = Adam(lr=0.001)
 
 
 def batch_generator(batch_size, sequence_length):
     while True:
         # Allocate a new array for the batch of input-signals.
-        x_shape = (batch_size, sequence_length, 48)
+        x_shape = (batch_size, sequence_length, 44)
         x_batch = np.zeros(shape=x_shape, dtype=np.float16)
         # Allocate a new array for the batch of output-signals.
         y_shape = (batch_size, sequence_length, 1)
         y_batch = np.zeros(shape=y_shape, dtype=np.float16)
         # Fill the batch with random sequences of data.
         for i in range(batch_size):
-            # Get a random start-index.
             # This points somewhere into the training-data.
             idx = np.random.randint(train_len - sequence_length)
             # Copy the sequences of data starting at this index.
@@ -38,40 +37,6 @@ def batch_generator(batch_size, sequence_length):
             y_batch[i] = y_train[idx:idx + sequence_length]
 
         yield (x_batch, y_batch)
-
-
-def loss_mse_warmup(y_true, y_pred):
-    """
-    Calculate the Mean Squared Error between y_true and y_pred,
-    but ignore the beginning "warmup" part of the sequences.
-
-    y_true is the desired output.
-    y_pred is the model's output.
-    """
-
-    # The shape of both input tensors are:
-    # [batch_size, sequence_length, num_y_signals].
-
-    # Ignore the "warmup" parts of the sequences
-    # by taking slices of the tensors.
-    y_true_slice = y_true[:, warmup_steps:, :]
-    y_pred_slice = y_pred[:, warmup_steps:, :]
-
-    # These sliced tensors both have this shape:
-    # [batch_size, sequence_length - warmup_steps, num_y_signals]
-
-    # Calculate the MSE loss for each value in these tensors.
-    # This outputs a 3-rank tensor of the same shape.
-    loss = tf.losses.mean_squared_error(labels=y_true_slice,
-                                        predictions=y_pred_slice)
-
-    # Keras may reduce this across the first axis (the batch)
-    # but the semantics are unclear, so to be sure we use
-    # the loss across the entire tensor, we reduce it to a
-    # single scalar with the mean function.
-    loss_mean = tf.reduce_mean(loss)
-
-    return loss_mean
 
 
 if __name__ == "__main__":
@@ -100,11 +65,11 @@ if __name__ == "__main__":
     validation_data = (np.expand_dims(X_test, axis=0),
                        np.expand_dims(y_test, axis=0))
     model = Sequential()
-    model.add(GRU(units=512,
+    model.add(GRU(units=52,
                   return_sequences=True,
-                  input_shape=(None, 48,)))
-    model.add(Dense(1, activation='sigmoid'))
-    model.compile(loss=loss_mse_warmup, optimizer=optimizer)
+                  input_shape=(None, 44,)))
+    model.add(Dense(1, activation='softmax'))
+    model.compile(loss=categorical_crossentropy, optimizer=optimizer, metrics=['accuracy'])
     print(model.summary())
     path_checkpoint = 'checkpoint.keras'
     callback_checkpoint = ModelCheckpoint(filepath=path_checkpoint,
@@ -127,7 +92,7 @@ if __name__ == "__main__":
                  callback_tensorboard,
                  callback_reduce_lr]
     model.fit_generator(generator=generator,
-                        epochs=20,
+                        epochs=5,
                         steps_per_epoch=100,
                         validation_data=validation_data,
                         callbacks=callbacks)
@@ -136,7 +101,11 @@ if __name__ == "__main__":
     except Exception as error:
         print("Error trying to load checkpoint.")
         print(error)
-    result = model.evaluate(x=np.expand_dims(X_test, axis=0),
-                            y=np.expand_dims(y_test, axis=0))
-
-    print("loss (test-set):", result)
+    #scores = model.evaluate(x=np.expand_dims(X_test, axis=0),
+    #                        y=np.expand_dims(y_test, axis=0))
+    #print("Accuracy: %.2f%%" % (scores[1] * 100))
+    X_test = np.expand_dims(X_test, axis=0)
+    y_pred = model.predict(X_test)
+    with open('pred.txt', 'w') as f:
+        for item in y_pred:
+            f.write("%s\n" % item)

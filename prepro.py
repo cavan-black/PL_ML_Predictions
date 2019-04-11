@@ -9,7 +9,7 @@ from csv import DictReader
 
 
 le = LabelEncoder()
-gamesConsidered = 10 # To Be Optimised!
+gamesConsidered = 8 # To Be Optimised!
 seasonDict = {
     1: {'s': '01/08/1994', 'e': '28/05/1995'},
     2: {'s': '01/08/1995', 'e': '28/05/1996'},
@@ -144,22 +144,22 @@ promoted_06 = ["Reading", "Sheffield United", "Watford"]
 relegated_07 = ["Sheffield United", "Charlton", "Watford"]
 promoted_07 = ["Sunderland", "Birmingham", "Derby"]
 relegated_08 = ["Reading", "Birmingham", "Derby"]
+promoted_08 = ["West Brom", "Stoke", "Hull"]
+relegated_09 = ["Newcastle", "Middlesbrough", "West Brom"]
+promoted_09 = ["Wolves", "Birmingham", "Burnley"]
+relegated_10 = ["Burnley", "Hull", "Portsmouth"]
 promoted_10 = ["Newcastle", "West Brom", "Blackpool"]
 relegated_11 = ["Birmingham", "Blackpool", "West Ham"]
 promoted_11 = ["QPR", "Norwich", "Swansea"]
 relegated_12 = ["Bolton", "Blackburn", "Wolves"]
 promoted_12 = ["Reading", "Southampton", "West Ham"]
 relegated_13 = ["Wigan", "Reading", "QPR"]
-promoted_09 = ["Wolves", "Birmingham", "Burnley"]
-relegated_10 = ["Burnley", "Hull", "Portsmouth"]
-relegated_15 = ["Hull", "Burnley", "QPR"]
-promoted_15 = ["Bournemouth", "Watford", "Norwich"]
-relegated_16 = ["Newcastle", "Norwich", "Aston Villa"]
 promoted_13 = ["Cardiff", "Hull", "Crystal Palace"]
 relegated_14 = ["Norwich", "Fulham", "Cardiff"]
 promoted_14 = ["Leicester", "Burnley", "QPR"]
-promoted_08 = ["West Brom", "Stoke", "Hull"]
-relegated_09 = ["Newcastle", "Middlesbrough", "West Brom"]
+relegated_15 = ["Hull", "Burnley", "QPR"]
+promoted_15 = ["Bournemouth", "Watford", "Norwich"]
+relegated_16 = ["Newcastle", "Norwich", "Aston Villa"]
 promoted_16 = ["Burnley", "Middlesbrough", "Hull"]
 relegated_17 = ["Hull", "Middlesbrough", "Sunderland"]
 promoted_17 = ["Newcastle", "Brighton", "Huddersfield"]
@@ -202,7 +202,7 @@ def pass_on_form(data):
             awaySDF = away_season_d_form(data, team, count+1)
             pass_on_hf(data, promotions[count][index], count+2, homeSAF, homeSDF)
             pass_on_af(data, promotions[count][index], count+2, awaySAF, awaySDF)
-    print("Pass On Form:", count / len(relegations) * 100, "%")
+        print("Pass On Form:", count / len(relegations) * 100, "%")
     return data
 
 
@@ -367,11 +367,11 @@ def do_dummies(data):
 def calc_form(data):
     for i, (index, row) in enumerate(data.iterrows()):
         if data.at[index, 'FTHG'] > data.at[index, 'FTAG']:
-            data.at[index, 'result'] = 1  # 1 means a home win
+            data.at[index, 'result'] = 'HW'  # 1 means a home win
         elif data.at[index, 'FTHG'] < data.at[index, 'FTAG']:
-            data.at[index, 'result'] = 2  # 2 means an away win
+            data.at[index, 'result'] = 'AW'  # 2 means an away win
         else:
-            data.at[index, 'result'] = 0  # 0 means a draw
+            data.at[index, 'result'] = 'D'  # 0 means a draw
         data.at[index, 'homeAF'] = (home_att_form(data, index))
         data.at[index, 'homeDF'] = (home_def_form(data, index))
         print("Calculate Form:", i/len(data)*50, "%")
@@ -406,8 +406,8 @@ def last_season_form(data):
                 apassonteam = relegations[proregindex][promotions[proregindex].index(awayteam)]
                 data.at[index, 'LSAAF'] = away_season_a_form(data, apassonteam, currentseason - 1)
                 data.at[index, 'LSADF'] = away_season_d_form(data, apassonteam, currentseason - 1)
-        print("Last Season Form:", int(i/len(data)*100), "%")
-        data.to_csv('skip_calc.csv')
+        print("Last Season Form:", i/len(data)*100, "%")
+    data.to_csv('skip_calc.csv')
     return data
 
 
@@ -440,18 +440,17 @@ if __name__ == "__main__":
     df = df.drop(['Unnamed: 0'], axis=1)
     df = calc_form(df)
     df = pass_on_form(df)
-    df = last_season_form(df)
-    df = pd.read_csv('skip_calc.csv', header=0)#.drop(['Unnamed: 0'], axis=1)
+    #df = last_season_form(df)
     df = remove_teams(df)
-    dfn = df.copy()
-    dfn = dfn.sort_index(ascending=True)
-    dfn = dfn.reset_index(drop=True)
-    dfn = reorganise_columns(dfn).drop(['Unnamed: 0'], axis=1).reset_index(drop=True)
-    dfn.to_csv('neuraldata.csv')
+    #dfn = df.copy()
+    #dfn = dfn.sort_index(ascending=True)
+    #dfn = dfn.reset_index(drop=True)
+    #dfn = reorganise_columns(dfn).drop(['Unnamed: 0'], axis=1).reset_index(drop=True)
+    #dfn.to_csv('neuraldata.csv')
     df = do_dummies(df)
     df = reorganise_columns(df)
     end = time.time()
     print(end-start)
     df = df.sort_values(['Date'], ascending=True)
-    df = df.drop(['Date', 'Season'], axis=1).drop(['Unnamed: 0'], axis=1).reset_index(drop=True)
+    df = df.drop(['Date', 'Season'], axis=1).reset_index(drop=True)
     df.to_csv('wpl.csv', index=False)  # Change File Path if Necessary
